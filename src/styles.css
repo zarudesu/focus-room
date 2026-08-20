@@ -350,10 +350,38 @@ button {
   background: #000;
 }
 
+.youtube-player-embed {
+  width: 100%;
+  height: 100%;
+}
+
+.youtube-player-embed.is-hidden {
+  visibility: hidden;
+}
+
 .youtube-player iframe {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.youtube-player-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+  background: var(--surface);
+  color: var(--text-dim);
+}
+
+.youtube-player-fallback a {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* Calm review */

@@ -35,6 +35,8 @@ export const strings = {
     lineupLabel: 'Lineup',
     startListeningButton: 'Start listening',
     endButton: 'End session',
+    playerErrorText: "Couldn't load the player.",
+    playerErrorLink: 'Open the playlist on YouTube',
   },
 
   review: {
