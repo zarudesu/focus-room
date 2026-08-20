@@ -8,6 +8,8 @@
  * "reward" kind Focus Room actually has (theme unlocks).
  */
 
+import { parseJSON, writeJSON } from './safeStorage';
+
 interface DeferredReward {
   themeId: string;
   createdAt: number;
@@ -16,6 +18,10 @@ interface DeferredReward {
 interface NotificationStore {
   deferred: DeferredReward[];
   updatedAt: number;
+}
+
+interface SessionBudget {
+  rewardsShown: number;
 }
 
 const EXPIRY_MS = 3 * 24 * 60 * 60 * 1000; // 3 days max
@@ -27,49 +33,50 @@ export const BUDGET_LIMITS = {
   dripOnSessionStart: 1,
 } as const;
 
+function isDeferredReward(value: unknown): value is DeferredReward {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v.themeId === 'string' && typeof v.createdAt === 'number' && Number.isFinite(v.createdAt);
+}
+
+function isNotificationStore(value: unknown): value is NotificationStore {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    Array.isArray(v.deferred) &&
+    v.deferred.every(isDeferredReward) &&
+    typeof v.updatedAt === 'number' &&
+    Number.isFinite(v.updatedAt)
+  );
+}
+
+function isSessionBudget(value: unknown): value is SessionBudget {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v.rewardsShown === 'number' && Number.isFinite(v.rewardsShown) && v.rewardsShown >= 0;
+}
+
 function readStore(): NotificationStore | null {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw) as NotificationStore;
-    if (Date.now() - data.updatedAt > EXPIRY_MS) {
-      localStorage.removeItem(STORE_KEY);
-      return null;
-    }
-    return data;
-  } catch {
+  const value = parseJSON(localStorage, STORE_KEY);
+  if (!isNotificationStore(value)) return null;
+  if (Date.now() - value.updatedAt > EXPIRY_MS) {
+    localStorage.removeItem(STORE_KEY);
     return null;
   }
+  return value;
 }
 
 function writeStore(data: NotificationStore): void {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(data));
-  } catch {
-    // ignore
-  }
-}
-
-interface SessionBudget {
-  rewardsShown: number;
+  writeJSON(localStorage, STORE_KEY, data);
 }
 
 function getSessionBudget(): SessionBudget {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return { rewardsShown: 0 };
-    return JSON.parse(raw) as SessionBudget;
-  } catch {
-    return { rewardsShown: 0 };
-  }
+  const value = parseJSON(sessionStorage, SESSION_KEY);
+  return isSessionBudget(value) ? value : { rewardsShown: 0 };
 }
 
 function setSessionBudget(budget: SessionBudget): void {
-  try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(budget));
-  } catch {
-    // ignore
-  }
+  writeJSON(sessionStorage, SESSION_KEY, budget);
 }
 
 /** Can we still show a reward toast this session? */

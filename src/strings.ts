@@ -43,6 +43,12 @@ export const strings = {
     themeUnlockedPrefix: 'New theme unlocked:',
   },
 
+  errorBoundary: {
+    heading: 'Something went wrong.',
+    body: "We've cleared this app's saved data so it can load cleanly. Your sessions collected count may reset.",
+    reloadButton: 'Reload',
+  },
+
   // Calm Review message bank — non-punitive, no streaks, no "well done".
   // Voice adapted from adhd-focus's CalmReview (session_end bank).
   calmReviewMessages: [

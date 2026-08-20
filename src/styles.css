@@ -413,6 +413,20 @@ button {
   white-space: nowrap;
 }
 
+/* Error boundary */
+
+.screen-error {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.screen-error p {
+  color: var(--text-dim);
+  max-width: 320px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
